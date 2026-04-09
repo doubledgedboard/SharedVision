@@ -31,6 +31,24 @@ Hooks.on("updateToken", (data) => {
 Hooks.on("sightRefresh", (data) => {
     onSightRefresh(data);
 });
+Hooks.on("visibilityRefresh", (data) => {
+    onSightRefresh(data);
+});
+Hooks.on("getActorDirectoryEntryContext", (html, options) => {
+    options.push({
+        name: "Shared Vision",
+        icon: '<i class="fas fa-eye"></i>',
+        condition: () => game.user.isGM,
+        callback: (li) => {
+            const actor = game.actors.get(li[0].dataset.entryId ?? li[0].dataset.documentId);
+            if (actor) {
+                let dialog = new visionConfig();
+                dialog.setActor(actor);
+                dialog.render(true);
+            }
+        },
+    });
+});
 Hooks.on("combatStart", () => {
     onCombat("start");
 });
@@ -44,36 +62,6 @@ Hooks.on("updateCombat", (a, b) => {
 function onInit() {
     registerSettings();
     socketInit();
-
-    // Add Vision Permission sheet to ActorDirectory context options
-    const ActorDirectory__getEntryContextOptions =
-        ActorDirectory.prototype._getEntryContextOptions;
-    ActorDirectory.prototype._getEntryContextOptions = function () {
-        return ActorDirectory__getEntryContextOptions.call(this).concat([
-            {
-                name: "Shared Vision",
-                icon: '<i class="fas fa-eye"></i>',
-                condition: (li) => {
-                    return game.user.isGM;
-                },
-                callback: (li) => {
-                    let actor;
-
-                    if(li.hasAttribute && li.hasAttribute('data-entry-id')) {
-                        actor = game.actors.get(li.getAttribute('data-entry-id'));
-                    } else {
-                        actor = this.constructor.collection.get(li.data("documentId"));
-                    }
-
-                    if (actor) {
-                        let dialog = new visionConfig();
-                        dialog.setActor(actor);
-                        dialog.render(true);
-                    }
-                },
-            },
-        ]);
-    };
 }
 
 function onReady() {

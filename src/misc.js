@@ -14,11 +14,7 @@ export async function onSetShareVision(data) {
         if (globalSharedVision != game.settings.get(moduleName, "enable")) {
             await game.settings.set(moduleName, "enable", globalSharedVision);
             shareVision(globalSharedVision);
-            ui.controls.controls
-                .find((controls) => controls.name == "token")
-                .tools.find(
-                    (tools) => tools.name == "enableSharedVision",
-                ).active = globalSharedVision;
+            ui.controls.controls.tokens.tools.enableSharedVision.active = globalSharedVision;
             ui.controls.render();
         }
     }
@@ -32,11 +28,7 @@ export async function onSetShareVision(data) {
         if (disableAll != game.settings.get(moduleName, "disableAll")) {
             await game.settings.set(moduleName, "disableAll", disableAll);
             emitSharedVision(disableAll);
-            ui.controls.controls
-                .find((controls) => controls.name == "token")
-                .tools.find(
-                    (tools) => tools.name == "disableAllSharedVision",
-                ).active = disableAll;
+            ui.controls.controls.tokens.tools.disableAllSharedVision.active = disableAll;
             ui.controls.render();
             updateAllTokens();
         }
@@ -56,7 +48,7 @@ export async function disableAll(en) {
     updateAllTokens();
 }
 
-export async function initializeSources(updateSource = false) {
+export async function initializeSources() {
     canvas.perception.initialize({
         sight: { initialize: true, refresh: true },
         lighting: { refresh: true },
