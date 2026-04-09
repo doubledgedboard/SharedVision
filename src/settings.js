@@ -1,5 +1,5 @@
 import { moduleName } from "../sharedvision.js";
-import { initializeSources, compatibleCore } from "./misc.js";
+import { initializeSources } from "./misc.js";
 import { emitSharedVision } from "./socket.js";
 
 /*
@@ -208,38 +208,22 @@ export class configMenu extends FormApplication {
         const permissions = [
             {
                 id: "none",
-                name: game.i18n.localize(
-                    compatibleCore("10.0")
-                        ? "OWNERSHIP.NONE"
-                        : "PERMISSION.NONE",
-                ),
+                name: game.i18n.localize("OWNERSHIP.NONE"),
                 permissions: getOverridePermissions("none"),
             },
             {
                 id: "limited",
-                name: game.i18n.localize(
-                    compatibleCore("10.0")
-                        ? "OWNERSHIP.LIMITED"
-                        : "PERMISSION.LIMITED",
-                ),
+                name: game.i18n.localize("OWNERSHIP.LIMITED"),
                 permissions: getOverridePermissions("limited"),
             },
             {
                 id: "observer",
-                name: game.i18n.localize(
-                    compatibleCore("10.0")
-                        ? "OWNERSHIP.OBSERVER"
-                        : "PERMISSION.OBSERVER",
-                ),
+                name: game.i18n.localize("OWNERSHIP.OBSERVER"),
                 permissions: getOverridePermissions("observer"),
             },
             {
                 id: "owner",
-                name: game.i18n.localize(
-                    compatibleCore("10.0")
-                        ? "OWNERSHIP.OWNER"
-                        : "PERMISSION.OWNER",
-                ),
+                name: game.i18n.localize("OWNERSHIP.OWNER"),
                 permissions: getOverridePermissions("owner"),
             },
         ];
@@ -247,39 +231,25 @@ export class configMenu extends FormApplication {
         const dispositions = [
             {
                 id: "friendly",
-                name: game.i18n.localize(
-                    compatibleCore("11.0")
-                        ? "TOKEN.DISPOSITION.FRIENDLY"
-                        : "TOKEN.FRIENDLY",
-                ),
+                name: game.i18n.localize("TOKEN.DISPOSITION.FRIENDLY"),
                 permissions: getOverrideDispositions("friendly"),
             },
             {
                 id: "neutral",
-                name: game.i18n.localize(
-                    compatibleCore("11.0")
-                        ? "TOKEN.DISPOSITION.NEUTRAL"
-                        : "TOKEN.NEUTRAL",
-                ),
+                name: game.i18n.localize("TOKEN.DISPOSITION.NEUTRAL"),
                 permissions: getOverrideDispositions("neutral"),
             },
             {
                 id: "hostile",
-                name: game.i18n.localize(
-                    compatibleCore("11.0")
-                        ? "TOKEN.DISPOSITION.HOSTILE"
-                        : "TOKEN.HOSTILE",
-                ),
+                name: game.i18n.localize("TOKEN.DISPOSITION.HOSTILE"),
                 permissions: getOverrideDispositions("hostile"),
             },
-        ];
-        if (compatibleCore("11.0")) {
-            dispositions.push({
+            {
                 id: "secret",
                 name: game.i18n.localize("TOKEN.DISPOSITION.SECRET"),
                 permissions: getOverrideDispositions("secret"),
-            });
-        }
+            },
+        ];
 
         return {
             permissions,

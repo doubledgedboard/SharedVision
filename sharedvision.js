@@ -1,9 +1,5 @@
 import { pushControlButtons } from "./src/controlButtons.js";
-import {
-    initializeSources,
-    onSetShareVision,
-    compatibleCore,
-} from "./src/misc.js";
+import { initializeSources, onSetShareVision } from "./src/misc.js";
 import { visionConfig } from "./src/visionConfig.js";
 import { registerSettings, migrateSettings } from "./src/settings.js";
 import { socketInit, emitSharedVision, updateSight } from "./src/socket.js";
@@ -99,11 +95,9 @@ let currentlyUpdatingTokenTimer;
 
 function onUpdateToken(data) {
     emitSharedVision(game.settings.get(moduleName, "enable"), false);
-    const token = compatibleCore("10.0")
-        ? canvas.tokens.placeables.find((t) => t.id == data.id)
-        : canvas.tokens.placeables.find((t) => t.id == data.data._id);
+    const token = canvas.tokens.placeables.find((t) => t.id == data.id);
 
-    currentlyUpdatingToken = compatibleCore("10.0") ? data.id : data.data._id;
+    currentlyUpdatingToken = data.id;
     currentlyUpdatingTokenVisible = token?.visible;
     currentlyUpdatingTokenTimer = setTimeout(function () {
         updateToken(token);

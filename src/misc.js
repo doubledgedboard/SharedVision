@@ -3,35 +3,6 @@ import { emitSharedVision } from "./socket.js";
 import { updateAllTokens } from "./tokenLayer.js";
 import { getOverridePermissions, getOverrideDispositions } from "./settings.js";
 
-export function compareVersions(checkedVersion, requiredVersion) {
-    requiredVersion = requiredVersion.split(".");
-    checkedVersion = checkedVersion.split(".");
-
-    for (let i = 0; i < 3; i++) {
-        requiredVersion[i] = isNaN(parseInt(requiredVersion[i]))
-            ? 0
-            : parseInt(requiredVersion[i]);
-        checkedVersion[i] = isNaN(parseInt(checkedVersion[i]))
-            ? 0
-            : parseInt(checkedVersion[i]);
-    }
-
-    if (checkedVersion[0] > requiredVersion[0]) return false;
-    if (checkedVersion[0] < requiredVersion[0]) return true;
-    if (checkedVersion[1] > requiredVersion[1]) return false;
-    if (checkedVersion[1] < requiredVersion[1]) return true;
-    if (checkedVersion[2] > requiredVersion[2]) return false;
-    return true;
-}
-
-export function compatibleCore(compatibleVersion) {
-    const split = compatibleVersion.split(".");
-    if (split.length == 2) compatibleVersion = `0.${compatibleVersion}`;
-    let coreVersion =
-        game.version == undefined ? game.data.version : `0.${game.version}`;
-    return compareVersions(compatibleVersion, coreVersion);
-}
-
 export async function onSetShareVision(data) {
     if (game.user.isGM == false) return;
     if (data.globalSharedVision != undefined) {
@@ -94,27 +65,6 @@ export async function initializeSources(updateSource = false) {
     });
 
     updateAllTokens();
-    if (compatibleCore("10.0")) {
-    } else {
-        const tokens = canvas.tokens.placeables;
-        let sightLayer = canvas.layers.find((l) => l.options.name === "sight");
-        for (let token of tokens) {
-            const actor = game.actors.get(
-                compatibleCore("10.0") ? token.actor.id : token.data.actorId,
-            );
-            const userSetting = actor
-                .getFlag("SharedVision", "userSetting")
-                ?.find((u) => u.id == game.userId);
-            if (
-                actor.getFlag("SharedVision", "enable") ||
-                userSetting?.vision ||
-                getOverride("vision", token)
-            ) {
-                let origin = token.getSightOrigin();
-                sightLayer.updateFog(origin, true);
-            }
-        }
-    }
 }
 
 export function getPermission(entity, permissionLevel) {
@@ -122,13 +72,11 @@ export function getPermission(entity, permissionLevel) {
 }
 
 export function isSharedVision(token) {
-    if (compatibleCore("12.0") && game.user.isGM && canvas.tokens.controlled.length == 0) return false;
+    if (game.user.isGM && canvas.tokens.controlled.length == 0) return false;
     if (game.settings.get(moduleName, "disableAll")) return false;
     let sharedVision = false;
     if (game.user.isGM == false && token.actor != null) {
-        if (
-            compatibleCore("10.0") ? token.document.hidden : token.data.hidden
-        ) {
+        if (token.document.hidden) {
             if (token.actor.getFlag("SharedVision", "hidden") == false)
                 return false;
         }
@@ -158,10 +106,6 @@ export function isSharedVision(token) {
         }
 
         if (sharedVision == false) {
-            let permission;
-            if (compatibleCore('10.0')) permission = token.document.permission;
-            else permission = token.actor.data.permission?.[game.userId] ? token.actor.data.permission?.[game.userId] : token.actor.data.permission.default;
-            const disposition = compatibleCore('10.0') ? token.document.disposition : token.data.disposition;
             sharedVision = getOverride("vision", token);
         }
         return sharedVision;
@@ -173,9 +117,7 @@ const dispositionTypes = ["hostile", "neutral", "friendly", "secret"];
 
 export function getOverride(type, token) {
     const p = token.actor.permission;
-    const d = compatibleCore("10.0")
-        ? token.document.disposition
-        : token.data.disposition;
+    const d = token.document.disposition;
     let permission = permissionLevels[p];
     let disposition = dispositionTypes[d + 1];
 
@@ -183,4 +125,3 @@ export function getOverride(type, token) {
     if (getOverrideDispositions(disposition, type)) return true;
     return false;
 }
-

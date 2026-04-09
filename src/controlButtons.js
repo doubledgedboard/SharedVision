@@ -6,8 +6,7 @@ export function pushControlButtons(controls) {
         return;
     }
 
-    let isNewVersion = foundry.utils.isNewerVersion(game.version, "13.0")
-    let enableSharedVisionObject = {
+    controls.tokens.tools.enableSharedVision = {
         name: "enableSharedVision",
         title: game.i18n.localize("SharedVision.CtrlBtn.Enable"),
         icon: "fas fa-globe",
@@ -18,7 +17,7 @@ export function pushControlButtons(controls) {
             shareVision(value);
         },
     };
-    let disableAllSharedVisionObject = {
+    controls.tokens.tools.disableAllSharedVision = {
         name: "disableAllSharedVision",
         title: game.i18n.localize(
             "SharedVision.CtrlBtn.DisableAll",
@@ -31,26 +30,4 @@ export function pushControlButtons(controls) {
             disableAll(value);
         },
     };
-
-    if (isNewVersion) {
-        applyForNewFoundryMenu(controls, enableSharedVisionObject, disableAllSharedVisionObject);
-    } else {
-        applyForLegacyFoundryMenu(controls, enableSharedVisionObject, disableAllSharedVisionObject);
-    }
-}
-
-function applyForNewFoundryMenu(controls, enableSharedVisionObject, disableAllSharedVisionObject) {
-    controls.tokens.tools.enableSharedVision = enableSharedVisionObject;
-    controls.tokens.tools.disableAllSharedVision = disableAllSharedVisionObject;
-}
-
-function applyForLegacyFoundryMenu(controls, enableSharedVisionObject, disableAllSharedVisionObject) {
-    let tokenButton = controls.find((b) => b.name == "token");
-
-    if (tokenButton) {
-        tokenButton.tools.push(
-            enableSharedVisionObject,
-            disableAllSharedVisionObject
-        );
-    }
 }

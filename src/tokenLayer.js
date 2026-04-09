@@ -1,5 +1,5 @@
 import { moduleName } from "../sharedvision.js";
-import { compatibleCore, getOverride } from "./misc.js";
+import { getOverride } from "./misc.js";
 
 export let tokenStorage = [];
 
@@ -17,25 +17,13 @@ export class displayedTokenLayer extends CanvasLayer {
     init(token) {
         this.container = new PIXI.Container();
         this.addChild(this.container);
-        let tokenIcon = PIXI.Sprite.from(
-            compatibleCore("10.0")
-                ? token.document.texture.src
-                : token.data.img,
-        );
+        let tokenIcon = PIXI.Sprite.from(token.document.texture.src);
         const gridSize = canvas.grid.size;
-        const tokenWidth = compatibleCore("10.0")
-            ? token.document.width
-            : token.data.width;
-        const tokenHeight = compatibleCore("10.0")
-            ? token.document.height
-            : token.data.height;
-        const tokenScale = compatibleCore("10.0")
-            ? token.document.texture.scaleX
-            : token.data.scale;
-        const hidden = compatibleCore("10.0")
-            ? token.document.hidden
-            : token.data.hidden;
-        const rotation = compatibleCore("10.0") ? token.document.rotation : 0;
+        const tokenWidth = token.document.width;
+        const tokenHeight = token.document.height;
+        const tokenScale = token.document.texture.scaleX;
+        const hidden = token.document.hidden;
+        const rotation = token.document.rotation;
 
         const size = tokenWidth;
         if (tokenHeight > size) size = tokenHeight;
@@ -46,8 +34,8 @@ export class displayedTokenLayer extends CanvasLayer {
         tokenIcon.anchor.set(0.5);
         this.container.addChild(tokenIcon);
 
-        let x = compatibleCore("10.0") ? token.document.x : token.data.x;
-        let y = compatibleCore("10.0") ? token.document.y : token.data.y;
+        let x = token.document.x;
+        let y = token.document.y;
         x += (tokenWidth * gridSize) / 2;
         y += (tokenHeight * gridSize) / 2;
 
@@ -57,15 +45,11 @@ export class displayedTokenLayer extends CanvasLayer {
     }
 
     updatePosition(token) {
-        const tokenWidth = compatibleCore("10.0")
-            ? token.document.width
-            : token.data.width;
-        const tokenHeight = compatibleCore("10.0")
-            ? token.document.height
-            : token.data.height;
+        const tokenWidth = token.document.width;
+        const tokenHeight = token.document.height;
         const gridSize = canvas.grid.size;
-        let x = compatibleCore("10.0") ? token.document.x : token.data.x;
-        let y = compatibleCore("10.0") ? token.document.y : token.data.y;
+        let x = token.document.x;
+        let y = token.document.y;
         x += (tokenWidth * gridSize) / 2;
         y += (tokenHeight * gridSize) / 2;
 
@@ -79,21 +63,19 @@ export class displayedTokenLayer extends CanvasLayer {
 
 export function drawNewToken(token) {
     tokenStorage.push({
-        tokenId: compatibleCore("10.0") ? token.document._id : token.id,
+        tokenId: token.document._id,
         icon: new displayedTokenLayer(token),
     });
 }
 
 export function moveToken(token) {
     if (token == undefined || game.user.isGM) return;
-    const actor = game.actors.get(
-        compatibleCore("10.0") ? token.actor.id : token.data.actorId,
-    );
+    const actor = game.actors.get(token.actor.id);
     const userSetting = actor
         .getFlag("SharedVision", "userSetting")
         ?.find((u) => u.id == game.userId);
     const shareHidden = actor.getFlag("SharedVision", "hidden");
-    const tokenId = compatibleCore("10.0") ? token.document._id : token.id;
+    const tokenId = token.document._id;
     if (
         userSetting?.vision ||
         getOverride("vision", token) ||
@@ -106,8 +88,7 @@ export function moveToken(token) {
     if (
         game.settings.get(moduleName, "disableAll") ||
         token.visible ||
-        ((compatibleCore("10.0") ? token.document.hidden : token.data.hidden) &&
-            !shareHidden)
+        (token.document.hidden && !shareHidden)
     ) {
         if (storage != undefined) {
             storage.icon.remove();
@@ -125,16 +106,14 @@ export function moveToken(token) {
 
 export function updateToken(token) {
     if (token == undefined || game.user.isGM) return;
-    const actor = game.actors.get(
-        compatibleCore("10.0") ? token.actor?.id : token.data?.actorId,
-    );
+    const actor = game.actors.get(token.actor?.id);
     if (actor == undefined) return;
-    
+
     const userSetting = actor
         .getFlag("SharedVision", "userSetting")
         ?.find((u) => u.id == game.userId);
     const shareHidden = actor.getFlag("SharedVision", "hidden");
-    const tokenId = compatibleCore("10.0") ? token.document._id : token.id;
+    const tokenId = token.document._id;
 
     //console.log('token',token, actor, userSetting)
 
@@ -145,8 +124,7 @@ export function updateToken(token) {
         (!getOverride("token", token) && userSetting?.token != true) ||
         game.settings.get(moduleName, "disableAll") ||
         token.visible ||
-        ((compatibleCore("10.0") ? token.document.hidden : token.data.hidden) &&
-            !shareHidden)
+        (token.document.hidden && !shareHidden)
     ) {
         if (storage != undefined) {
             storage.icon.remove();
@@ -160,7 +138,6 @@ export function updateToken(token) {
     if (storage == undefined) drawNewToken(token);
     else {
         storage.icon.remove();
-        const tokenId = compatibleCore("10.0") ? token.document._id : token.id;
         tokenStorage.splice(
             tokenStorage.findIndex((s) => s.tokenId == tokenId),
             1,
