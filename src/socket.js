@@ -1,6 +1,5 @@
-import { initializeSources, onSetShareVision, revealTokenFog } from "./misc.js";
-import { heyWait_onTrigger } from "./externalModules.js";
-import { moveToken, updateAllTokens } from "./tokenLayer.js";
+import { initializeSources, onSetShareVision } from "./misc.js";
+import { moveToken } from "./tokenLayer.js";
 
 /*
  * Set up the socket used to communicate between GM and player clients
@@ -16,14 +15,8 @@ export function socketInit() {
             const token = canvas.tokens.placeables.find(
                 (t) => t.id == payload.tokenId,
             );
-            revealTokenFog(token);
             moveToken(token);
         }
-    });
-
-    game.socket.on("module.hey-wait", (payload) => {
-        if (game.user == null) return;
-        if (game.user.isGM) heyWait_onTrigger(payload.sceneId, payload.tileId);
     });
 }
 

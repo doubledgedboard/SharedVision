@@ -49,13 +49,6 @@ export const registerSettings = function () {
         type: Boolean,
     });
 
-    game.settings.register(moduleName, "midiQOL-dialog", {
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-    });
-
     game.settings.register(moduleName, "migration_v1.0.10", {
         scope: "world",
         config: false,
@@ -63,89 +56,6 @@ export const registerSettings = function () {
         type: Boolean,
     });
 
-    /////////////////////////////////////////////////
-    //Remove all settings below this in next version
-    /////////////////////////////////////////////////
-
-    game.settings.register(moduleName, "none", {
-        name: "SharedVision.Sett.None.Name",
-        hint: "SharedVision.Sett.None.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "limited", {
-        name: "SharedVision.Sett.Limited.Name",
-        hint: "SharedVision.Sett.Limited.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "observer", {
-        name: "SharedVision.Sett.Observer.Name",
-        hint: "SharedVision.Sett.Observer.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "owner", {
-        name: "SharedVision.Sett.Owner.Name",
-        hint: "SharedVision.Sett.Owner.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "friendly", {
-        name: "SharedVision.Sett.Friendly.Name",
-        hint: "SharedVision.Sett.Friendly.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "neutral", {
-        name: "SharedVision.Sett.Neutral.Name",
-        hint: "SharedVision.Sett.Neutral.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "hostile", {
-        name: "SharedVision.Sett.Hostile.Name",
-        hint: "SharedVision.Sett.Hostile.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
-
-    game.settings.register(moduleName, "secret", {
-        name: "SharedVision.Sett.Secret.Name",
-        hint: "SharedVision.Sett.Secret.Hint",
-        scope: "world",
-        config: false,
-        default: false,
-        type: Boolean,
-        onChange: (x) => initializeSources(),
-    });
 };
 
 export function migrateSettings() {

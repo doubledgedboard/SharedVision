@@ -4,31 +4,18 @@ import {
     onSetShareVision,
     compatibleCore,
 } from "./src/misc.js";
-import {
-    heyWait_onTileHud,
-    setTriggerHappyActive,
-    setHeyWaitActive,
-} from "./src/externalModules.js";
 import { visionConfig } from "./src/visionConfig.js";
-import { libWrapper } from "./src/shim.js";
 import { registerSettings, migrateSettings } from "./src/settings.js";
 import { socketInit, emitSharedVision, updateSight } from "./src/socket.js";
-import {
-    isVisionSourceOverride,
-    updateOcclusionOverride,
-} from "./src/overrides.js";
+import { isVisionSourceOverride } from "./src/overrides.js";
 import { updateToken } from "./src/tokenLayer.js";
 
 export const moduleName = "SharedVision";
-export let midiQOL;
 
 //CONFIG.debug.hooks = true;
 
 Hooks.once("init", function () {
     onInit();
-});
-Hooks.once("setup", function () {
-    onSetup();
 });
 Hooks.once("ready", function () {
     onReady();
@@ -47,9 +34,6 @@ Hooks.on("updateToken", (data) => {
 });
 Hooks.on("sightRefresh", (data) => {
     onSightRefresh(data);
-});
-Hooks.on("renderTileHUD", async (tileHud, html) => {
-    heyWait_onTileHud(tileHud, html);
 });
 Hooks.on("combatStart", () => {
     onCombat("start");
@@ -94,55 +78,17 @@ function onInit() {
             },
         ]);
     };
-
-    setTimeout(function () {
-        updateNotification();
-    }, 500);
-}
-
-function onSetup() {
-    const triggerHappy = game.modules.get("trigger-happy");
-    setTriggerHappyActive(
-        triggerHappy != undefined && triggerHappy.active == true,
-    );
 }
 
 function onReady() {
     if (game.user.isGM) migrateSettings();
 
-    const heyWait = game.modules.get("hey-wait");
-    setHeyWaitActive(heyWait != undefined && heyWait.active == true);
-
-    midiQOL = game.modules.get("midi-qol")?.active;
-    if (midiQOL == undefined) midiQOL = false;
-    if (
-        midiQOL &&
-        game.settings.settings.has("midi-qol.playerControlsInvisibleTokens")
-    )
-        midiQOL = game.settings.get(
-            "midi-qol",
-            "playerControlsInvisibleTokens",
-        );
-
-    if (game.modules.get("lib-wrapper")?.active) {
-        libWrapper.register(
-            "SharedVision",
-            "Token.prototype._isVisionSource",
-            isVisionSourceOverride,
-            "OVERRIDE",
-        );
-        if (!compatibleCore("10.0"))
-            libWrapper.register(
-                "SharedVision",
-                "ForegroundLayer.prototype.updateOcclusion",
-                updateOcclusionOverride,
-                "OVERRIDE",
-            );
-    } else {
-        Token.prototype._isVisionSource = isVisionSourceOverride;
-        if (!compatibleCore("10.0"))
-            ForegroundLayer.prototype.updateOcclusion = updateOcclusionOverride;
-    }
+    libWrapper.register(
+        "SharedVision",
+        "Token.prototype._isVisionSource",
+        isVisionSourceOverride,
+        "OVERRIDE",
+    );
 
     if (!game.user.isGM) initializeSources();
 }
@@ -173,10 +119,6 @@ function onSightRefresh(data) {
 }
 
 async function onCanvasReady() {
-    if (midiQOL && game.modules.get("lib-wrapper")?.active == false) {
-        Token.prototype._isVisionSource = isVisionSourceOverride;
-    }
-
     const enable = game.settings.get(moduleName, "enable");
     if (game.user.isGM) emitSharedVision(enable);
     initializeSources();
@@ -199,34 +141,4 @@ function onCombat(mode) {
 
 function onUpdateCombat(a, b) {
     if (a.previous.round == 0 && a.previous.turn == 0) onCombat("start");
-}
-
-function updateNotification() {
-    /*
-    if (game.settings.get(moduleName,"updateNotificationV1.0.4") == false && game.user.isGM) {
-      let d = new Dialog({
-        title: "Shared Vision update v1.0.4",
-        content: `
-        <h3>Shared Vision has been updated to version 1.0.4</h3>
-        <p>
-        The vision configuration has been removed from the actor permission configuration screen. Instead, it now has its own configuration screen.<br>
-        You can find this by right-clicking an actor in the Actors Directory, and selection 'Shared Vision'.
-        <br>
-        <input type="checkbox" name="hide" data-dtype="Boolean">
-        Don't show this screen again
-        </p>`,
-        buttons: {
-        ok: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "OK"
-        }
-        },
-        default: "OK",
-        close: html => {
-          if (html.find("input[name ='hide']").is(":checked")) game.settings.set(moduleName,"updateNotificationV1.0.4",true);
-        }
-      });
-      d.render(true);
-    }
-    */
 }

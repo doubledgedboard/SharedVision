@@ -1,4 +1,4 @@
-import { moduleName, midiQOL } from "../sharedvision.js";
+import { moduleName } from "../sharedvision.js";
 import { emitSharedVision } from "./socket.js";
 import { updateAllTokens } from "./tokenLayer.js";
 import { getOverridePermissions, getOverrideDispositions } from "./settings.js";
@@ -94,7 +94,6 @@ export async function initializeSources(updateSource = false) {
     });
 
     updateAllTokens();
-    revealAllFog();
     if (compatibleCore("10.0")) {
     } else {
         const tokens = canvas.tokens.placeables;
@@ -130,10 +129,7 @@ export function isSharedVision(token) {
         if (
             compatibleCore("10.0") ? token.document.hidden : token.data.hidden
         ) {
-            if (
-                (midiQOL && getPermission(token.actor, "OWNER")) == false &&
-                token.actor.getFlag("SharedVision", "hidden") == false
-            )
+            if (token.actor.getFlag("SharedVision", "hidden") == false)
                 return false;
         }
 
@@ -188,90 +184,3 @@ export function getOverride(type, token) {
     return false;
 }
 
-export function revealTokenFog(token) {
-    if (
-        game.settings.get(moduleName, "disableAll") ||
-        token == undefined ||
-        game.user.isGM
-    )
-        return false;
-    const actor = game.actors.get(
-        compatibleCore("10.0") ? token.actor.id : token.data.actorId,
-    );
-    const userSetting = actor
-        .getFlag("SharedVision", "userSetting")
-        ?.find((u) => u.id == game.userId);
-    if (
-        userSetting?.vision ||
-        getOverride("vision", token) ||
-        (userSetting?.fog != true && !getOverride("fog", token))
-    )
-        return;
-
-    if (compatibleCore("12.0")) {
-        //TODO: calculate fog v12
-    } else if (compatibleCore("10.0")) {
-        token.vision.initialize({
-            x: token.document.x,
-            y: token.document.y,
-            radius: Math.clamped(token.sightRange, 0, canvas.dimensions.maxR),
-            externalRadius: Math.max(token.mesh.width, token.mesh.height) / 2,
-            angle: token.document.sight.angle,
-            contrast: token.document.sight.contrast,
-            saturation: token.document.sight.saturation,
-            brightness: token.document.sight.brightness,
-            attenuation: token.document.sight.attenuation,
-            rotation: token.document.rotation,
-            visionMode: token.document.sight.visionMode,
-            color: Color.from(token.document.sight.color),
-            isPreview: !!token._original,
-            blinded: token.document.hasStatusEffect(
-                CONFIG.specialStatusEffects.BLIND,
-            ),
-        });
-        let visionSource = token.vision;
-        canvas.effects.visionSources.set(token.sourceId, visionSource);
-        if (visionSource.los == undefined)
-            visionSource.los = { isConstrained: true };
-        //visionSource.active = true;
-
-        canvas.effects.visibility.refresh({ forceUpdateFog: true });
-        canvas.effects.visionSources.delete(token.sourceId);
-        canvas.effects.visibility.refresh({ forceUpdateFog: true });
-    } else {
-        const origin = token.getSightOrigin();
-        const d = canvas.dimensions;
-
-        token.vision.initialize({
-            x: origin.x,
-            y: origin.y,
-            dim: Math.clamped(
-                token.getLightRadius(token.data.dimSight),
-                0,
-                d.maxR,
-            ),
-            bright: Math.clamped(
-                token.getLightRadius(token.data.brightSight),
-                0,
-                d.maxR,
-            ),
-            angle: token.data.sightAngle,
-            rotation: token.data.rotation,
-        });
-
-        const sightLayer = canvas.layers.find(
-            (l) => l.options.name === "sight",
-        );
-        sightLayer.sources.set(token.sourceId, token.vision);
-        sightLayer.refresh({ forceUpdateFog: true });
-        sightLayer.sources.delete(token.sourceId);
-        sightLayer.refresh({ forceUpdateFog: true });
-    }
-}
-
-export function revealAllFog() {
-    const tokens = canvas.tokens.placeables;
-    for (let token of tokens) {
-        revealTokenFog(token);
-    }
-}
