@@ -1,54 +1,35 @@
 {
-    "name": "SharedVision",
     "id": "SharedVision",
     "title": "Shared Vision",
     "description": "Shared Vision provides an easy way to toggle vision sharing between multiple tokens",
     "version": "2.0.0",
     "authors": [
-        {
-            "name":  "doubledgedboard"
-        },
-        {
-            "name": "CDeenen"
-        },
-        {
-            "name": "muhahahahe",
-            "discord": "muhahahahe"
-        }
+        { "name": "CDeenen" },
+        { "name": "muhahahahe", "discord": "muhahahahe" },
+        { "name": "doubledgedboard" }
     ],
-    "esmodules": [
-        "./sharedvision.js"
-    ],
-    "styles": [
-        "./css/style.css"
-    ],
+    "esmodules": ["./sharedvision.js"],
+    "styles": ["./css/style.css"],
     "socket": true,
-    "minimumCoreVersion": "13.0",
-    "compatibleCoreVersion": "13",
     "compatibility": {
         "minimum": "13",
         "verified": "13",
-        "maximum" : "13"
+        "maximum": "13"
+    },
+    "relationships": {
+        "requires": [
+            {
+                "id": "lib-wrapper",
+                "type": "module",
+                "compatibility": {}
+            }
+        ]
     },
     "languages": [
         {
             "lang": "en",
             "name": "English",
             "path": "lang/en.json"
-        }
-    ],
-    "media": [
-        {
-            "type": "icon",
-            "url": "modules/SharedVision/img/MaterialFoundry512x512.png"
-        },
-        {
-            "type": "setup",
-            "url": "modules/SharedVision/img/MaterialFoundry2560x1440.jpg"
-        },
-        {
-            "type": "cover",
-            "url": "modules/SharedVision/img/MaterialFoundry2560x1440.jpg"
         }
     ],
     "url": "https://github.com/doubledgedboard/SharedVision",
