@@ -2,6 +2,8 @@ import { moduleName } from "../sharedvision.js";
 import { initializeSources } from "./misc.js";
 import { emitSharedVision } from "./socket.js";
 
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
 /*
  * Initialize all settings
  */
@@ -102,41 +104,39 @@ export function migrateSettings() {
     }
 }
 
-export class helpMenu extends FormApplication {
-    constructor(data, options) {
-        super(data, options);
-    }
+export class helpMenu extends HandlebarsApplicationMixin(ApplicationV2) {
+    static DEFAULT_OPTIONS = {
+        id: "sharedVision_helpMenu",
+        position: { width: 500 },
+        window: {
+            title: "SharedVision.Sett.Help",
+            icon: "fas fa-question-circle",
+        },
+    };
 
-    /**
-     * Default Options for this FormApplication
-     */
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            id: "sharedVision_helpMenu",
-            title:
-                "Shared Vision: " +
-                game.i18n.localize("SharedVision.Sett.Help"),
-            template: "./modules/SharedVision/templates/helpMenu.html",
-            width: "500px",
-        });
-    }
+    static PARTS = {
+        content: { template: "modules/SharedVision/templates/helpMenu.hbs" },
+    };
 
-    /**
-     * Provide data to the template
-     */
-    getData() {
+    async _prepareContext(options) {
         return {};
     }
 
-    /**
-     * Update on form submit
-     * @param {*} event
-     * @param {*} formData
-     */
-    async _updateObject(event, formData) {}
-
-    activateListeners(html) {
-        super.activateListeners(html);
+    _onRender(context, options) {
+        super._onRender(context, options);
+        for (let element of this.element.querySelectorAll(".sharedVision_expandable")) {
+            element.addEventListener("click", (event) => {
+                let thisElement = event.target;
+                if (event.target.className === "sharedVision_expandableIcon")
+                    thisElement = event.target.parentElement;
+                let nextElement = thisElement.nextElementSibling;
+                const collapse = nextElement.className !== "sharedVision_collapsed";
+                nextElement.className = collapse ? "sharedVision_collapsed" : "";
+                thisElement.children[0].src = collapse
+                    ? "modules/SharedVision/img/icons/right.png"
+                    : "modules/SharedVision/img/icons/down.png";
+            });
+        }
     }
 }
 
@@ -158,30 +158,26 @@ export function getOverrideDispositions(disposition, type) {
     return perm[type];
 }
 
-export class configMenu extends FormApplication {
-    constructor(data, options) {
-        super(data, options);
-        this.combatSettings = {};
-    }
+export class configMenu extends HandlebarsApplicationMixin(ApplicationV2) {
+    static DEFAULT_OPTIONS = {
+        id: "sharedVision_config",
+        tag: "form",
+        form: {
+            handler: configMenu.onSubmit,
+            closeOnSubmit: true,
+        },
+        position: { width: 500 },
+        window: {
+            title: "SharedVision.Conf.Title",
+            icon: "fas fa-gear",
+        },
+    };
 
-    /**
-     * Default Options for this FormApplication
-     */
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            id: "sharedVision_config",
-            title:
-                "Shared Vision: " +
-                game.i18n.localize("SharedVision.Conf.Title"),
-            template: "./modules/SharedVision/templates/config.html",
-            width: "500px",
-        });
-    }
+    static PARTS = {
+        form: { template: "modules/SharedVision/templates/config.hbs" },
+    };
 
-    /**
-     * Provide data to the template
-     */
-    getData() {
+    async _prepareContext(options) {
         let combatConfig = game.settings.get(moduleName, "combatConfig");
         if (combatConfig.start == undefined)
             combatConfig.start = { global: false, disableAll: false };
@@ -190,9 +186,7 @@ export class configMenu extends FormApplication {
 
         let combat = {
             global: {
-                name: game.i18n.localize(
-                    "SharedVision.VisionConf.Global.Label",
-                ),
+                name: game.i18n.localize("SharedVision.VisionConf.Global.Label"),
                 id: "global",
                 start: combatConfig.start.global,
                 end: combatConfig.end.global,
@@ -251,19 +245,10 @@ export class configMenu extends FormApplication {
             },
         ];
 
-        return {
-            permissions,
-            dispositions,
-            combat,
-        };
+        return { permissions, dispositions, combat };
     }
 
-    /**
-     * Update on form submit
-     * @param {*} event
-     * @param {*} formData
-     */
-    async _updateObject(event, formData) {
+    static async onSubmit(event, form, formData) {
         let config = {
             permission: {
                 none: { vision: false, token: false, fog: false },
@@ -282,7 +267,7 @@ export class configMenu extends FormApplication {
             start: { global: false, disableAll: false },
             end: { global: false, disableAll: false },
         };
-        for (const [key, value] of Object.entries(formData)) {
+        for (const [key, value] of Object.entries(formData.object)) {
             const split = key.split("-");
             if (split[0] == "combatSelect") {
                 combatConfig[split[1]][split[2]] = value;
@@ -292,9 +277,5 @@ export class configMenu extends FormApplication {
         await game.settings.set(moduleName, "combatConfig", combatConfig);
         initializeSources();
         emitSharedVision(game.settings.get(moduleName, "enable"));
-    }
-
-    activateListeners(html) {
-        super.activateListeners(html);
     }
 }

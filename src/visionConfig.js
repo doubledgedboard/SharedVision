@@ -2,33 +2,39 @@ import { moduleName } from "../sharedvision.js";
 import { initializeSources } from "./misc.js";
 import { emitSharedVision } from "./socket.js";
 
-export class visionConfig extends FormApplication {
-    constructor(data, options) {
-        super(data, options);
-        this.actor;
-        this.userSettings = [];
-    }
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-    /**
-     * Default Options for this FormApplication
-     */
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            id: "sharedVision_visionConfig",
-            title: `Shared Vision: Vision Config`,
-            template: "./modules/SharedVision/templates/visionConfig.html",
-            classes: ["sheet"],
-        });
+export class visionConfig extends HandlebarsApplicationMixin(ApplicationV2) {
+    static DEFAULT_OPTIONS = {
+        id: "sharedVision_visionConfig",
+        tag: "form",
+        form: {
+            handler: visionConfig.onSubmit,
+            closeOnSubmit: true,
+        },
+        window: {
+            title: "Shared Vision: Vision Config",
+        },
+        classes: ["sheet"],
+    };
+
+    static PARTS = {
+        form: { template: "modules/SharedVision/templates/visionConfig.hbs" },
+    };
+
+    constructor(options = {}) {
+        super(options);
+        this.actor = null;
+        this.userSettings = [];
     }
 
     setActor(actor) {
         this.actor = actor;
     }
 
-    /**
-     * Provide data to the template
-     */
-    getData() {
+    async _prepareContext(options) {
+        this.userSettings = [];
+
         let btnEnable = this.actor.getFlag("SharedVision", "enable");
         if (btnEnable == undefined) btnEnable = false;
         let hidden = this.actor.getFlag("SharedVision", "hidden");
@@ -71,39 +77,24 @@ export class visionConfig extends FormApplication {
         };
     }
 
-    /**
-     * Update on form submit
-     * @param {*} event
-     * @param {*} formData
-     */
-    async _updateObject(event, formData) {
-        await this.actor.setFlag(
-            "SharedVision",
-            "enable",
-            formData.sharedVisionButton,
-        );
-        await this.actor.setFlag(
-            "SharedVision",
-            "hidden",
-            formData.sharedVisionHiddenButton,
-        );
-        let newSettings = [];
+    static async onSubmit(event, form, formData) {
+        const app = this;
+        const data = formData.object;
+        await app.actor.setFlag("SharedVision", "enable", data.sharedVisionButton);
+        await app.actor.setFlag("SharedVision", "hidden", data.sharedVisionHiddenButton);
 
-        for (let user of this.userSettings) {
+        let newSettings = [];
+        for (let user of app.userSettings) {
             newSettings.push({
                 id: user.id,
-                token: formData?.[`token-${user.id}`] === true,
-                vision: formData?.[`vision-${user.id}`] === true,
-                fog: formData?.[`fog-${user.id}`] === true,
+                token: data[`token-${user.id}`] === true,
+                vision: data[`vision-${user.id}`] === true,
+                fog: data[`fog-${user.id}`] === true,
             });
         }
 
-        await this.actor.setFlag("SharedVision", "userSetting", newSettings);
+        await app.actor.setFlag("SharedVision", "userSetting", newSettings);
         initializeSources();
         emitSharedVision(game.settings.get(moduleName, "enable"));
-    }
-
-    activateListeners(html) {
-        super.activateListeners(html);
     }
 }
