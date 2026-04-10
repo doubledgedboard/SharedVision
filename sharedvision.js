@@ -40,7 +40,8 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
         icon: '<i class="fas fa-eye"></i>',
         condition: () => game.user.isGM,
         callback: (li) => {
-            const actor = game.actors.get(li[0].dataset.entryId ?? li[0].dataset.documentId);
+            const element = li instanceof HTMLElement ? li : li[0];
+            const actor = game.actors.get(element?.dataset.entryId ?? element?.dataset.documentId);
             if (actor) {
                 let dialog = new visionConfig();
                 dialog.setActor(actor);
