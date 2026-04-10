@@ -1,3 +1,13 @@
+#sharedVision_config .window-content {
+  overflow-y: auto !important;
+}
+
+.sharedVision_table_container {
+    align-items: center;
+    max-width: 450px;
+    text-align: center;
+}
+
 .sharedVision_table_name {
     text-align: left;
     width: 50%;
@@ -14,7 +24,7 @@
 }
 
 .sharedVision_table_select {
-    
+    min-width: 125px;
     padding-left:5px;
     vertical-align: middle;
 }
