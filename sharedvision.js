@@ -34,8 +34,8 @@ Hooks.on("sightRefresh", (data) => {
 Hooks.on("visibilityRefresh", (data) => {
     onSightRefresh(data);
 });
-Hooks.on("getActorDirectoryEntryContext", (html, options) => {
-    options.push({
+Hooks.on("getActorContextOptions", (_application, menuItems) => {
+    menuItems.push({
         name: "Shared Vision",
         icon: '<i class="fas fa-eye"></i>',
         condition: () => game.user.isGM,
@@ -44,11 +44,11 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
             const actorId = element?.dataset.documentId ?? element?.dataset.entryId;
             const actor = actorId ? game.actors.get(actorId) : null;
             if (!actorId) {
-                console.error("SharedVision | getActorDirectoryEntryContext: could not find document ID on element", element);
+                console.error("SharedVision | getActorContextOptions: could not find document ID on element", element);
                 return;
             }
             if (!actor) {
-                console.error("SharedVision | getActorDirectoryEntryContext: no actor found for id", actorId);
+                console.error("SharedVision | getActorContextOptions: no actor found for id", actorId);
                 return;
             }
             let dialog = new visionConfig();
