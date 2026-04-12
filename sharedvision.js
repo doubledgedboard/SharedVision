@@ -41,12 +41,19 @@ Hooks.on("getActorDirectoryEntryContext", (html, options) => {
         condition: () => game.user.isGM,
         callback: (li) => {
             const element = li instanceof HTMLElement ? li : li[0];
-            const actor = game.actors.get(element?.dataset.entryId ?? element?.dataset.documentId);
-            if (actor) {
-                let dialog = new visionConfig();
-                dialog.setActor(actor);
-                dialog.render(true);
+            const actorId = element?.dataset.documentId ?? element?.dataset.entryId;
+            const actor = actorId ? game.actors.get(actorId) : null;
+            if (!actorId) {
+                console.error("SharedVision | getActorDirectoryEntryContext: could not find document ID on element", element);
+                return;
             }
+            if (!actor) {
+                console.error("SharedVision | getActorDirectoryEntryContext: no actor found for id", actorId);
+                return;
+            }
+            let dialog = new visionConfig();
+            dialog.setActor(actor);
+            dialog.render({ force: true });
         },
     });
 });
