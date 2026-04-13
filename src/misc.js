@@ -65,7 +65,9 @@ export function getPermission(entity, permissionLevel) {
 
 export function isSharedVision(token) {
     if (game.user.isGM && canvas.tokens.controlled.length == 0) return false;
-    if (game.settings.get(moduleName, "disableAll")) return false;
+    const disableAll = game.settings.get(moduleName, "disableAll");
+    console.log(`SharedVision | isSharedVision | token="${token.name}" isGM=${game.user.isGM} disableAll=${disableAll} actor=${token.actor?.name ?? "null"}`);
+    if (disableAll) return false;
     let sharedVision = false;
     if (game.user.isGM == false && token.actor != null) {
         if (token.document.hidden) {
