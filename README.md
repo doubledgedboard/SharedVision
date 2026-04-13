@@ -47,6 +47,6 @@ Shared Vision overrides `Token.prototype._isVisionSource` via [libWrapper](https
 
 **Original author:** Cristian Deenen (CDeenen)
 
-**Contributors:** muhahahahe, doubledgedboard
+**Contributors:** muhahahahe, doubledgedboard, Sentientdeth
 
 This is a fork of the [original module](https://github.com/CDeenen/SharedVision), updated for Foundry VTT v13 compatibility.

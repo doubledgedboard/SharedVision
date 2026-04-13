@@ -1,4 +1,9 @@
 # Changelog
+### v2.0.0 - 04-12-2026
+- v13 Compatible Rewrite
+- No Longer Pre-v13 Compatible
+- Removed Trigger Happy and Hey, Wait! Support
+
 ### v1.2.0 - 18-07-2024
 Update is thanks to @muhahahahe
 

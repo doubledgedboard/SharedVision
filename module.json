@@ -6,7 +6,8 @@
     "authors": [
         { "name": "CDeenen" },
         { "name": "muhahahahe", "discord": "muhahahahe" },
-        { "name": "doubledgedboard" }
+        { "name": "doubledgedboard", "discord": "doubledgedboard" },
+        { "name": "Sentientdeth", "discord": "sheppy666" }
     ],
     "esmodules": ["./sharedvision.js"],
     "styles": ["./css/style.css"],
