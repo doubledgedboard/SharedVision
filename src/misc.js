@@ -65,9 +65,7 @@ export function getPermission(entity, permissionLevel) {
 
 export function isSharedVision(token) {
     if (game.user.isGM && canvas.tokens.controlled.length == 0) return false;
-    const disableAll = game.settings.get(moduleName, "disableAll");
-    console.log(`SharedVision | isSharedVision | token="${token.name}" isGM=${game.user.isGM} disableAll=${disableAll} actor=${token.actor?.name ?? "null"}`);
-    if (disableAll) return false;
+    if (game.settings.get(moduleName, "disableAll")) return false;
     let sharedVision = false;
     if (game.user.isGM == false && token.actor != null) {
         if (token.document.hidden) {
@@ -79,7 +77,6 @@ export function isSharedVision(token) {
         if (globalEnable) {
             const actorFlag = token.actor.getFlag("SharedVision", "enable");
             sharedVision = actorFlag != undefined ? actorFlag : false;
-            console.log(`SharedVision | isSharedVision | token="${token.name}" globalEnable=${globalEnable} actorFlag=${actorFlag} -> ${sharedVision}`);
         }
 
         if (sharedVision == false) {
@@ -91,15 +88,10 @@ export function isSharedVision(token) {
                 userSetting = Object.values(userSetting);
             }
             const userEntry = userSetting?.find?.(s => s.id == game.userId);
-            console.log(`SharedVision | isSharedVision | token="${token.name}" userSetting entry=${JSON.stringify(userEntry)}`);
             if (userEntry) sharedVision = userEntry.vision;
         }
 
         if (sharedVision == false) {
-            const p = token.actor.permission;
-            const d = token.document.disposition;
-            const overrideCfg = game.settings.get(moduleName, "overrideConfig");
-            console.log(`SharedVision | isSharedVision | token="${token.name}" permission=${p} disposition=${d} overrideConfig=${JSON.stringify(overrideCfg)}`);
             sharedVision = getOverride("vision", token);
         }
         return sharedVision;
