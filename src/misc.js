@@ -73,11 +73,11 @@ export function isSharedVision(token) {
                 return false;
         }
 
-        if (game.settings.get(moduleName, "enable")) {
-            sharedVision =
-                token.actor.getFlag("SharedVision", "enable") != undefined
-                    ? token.actor.getFlag("SharedVision", "enable")
-                    : false;
+        const globalEnable = game.settings.get(moduleName, "enable");
+        if (globalEnable) {
+            const actorFlag = token.actor.getFlag("SharedVision", "enable");
+            sharedVision = actorFlag != undefined ? actorFlag : false;
+            console.log(`SharedVision | isSharedVision | token="${token.name}" globalEnable=${globalEnable} actorFlag=${actorFlag} -> ${sharedVision}`);
         }
 
         if (sharedVision == false) {
@@ -88,16 +88,16 @@ export function isSharedVision(token) {
             if (typeof userSetting === "object") {
                 userSetting = Object.values(userSetting);
             }
-            if (userSetting != undefined) {
-                for (let setting of userSetting)
-                    if (setting.id == game.userId) {
-                        sharedVision = setting.vision;
-                        break;
-                    }
-            }
+            const userEntry = userSetting?.find?.(s => s.id == game.userId);
+            console.log(`SharedVision | isSharedVision | token="${token.name}" userSetting entry=${JSON.stringify(userEntry)}`);
+            if (userEntry) sharedVision = userEntry.vision;
         }
 
         if (sharedVision == false) {
+            const p = token.actor.permission;
+            const d = token.document.disposition;
+            const overrideCfg = game.settings.get(moduleName, "overrideConfig");
+            console.log(`SharedVision | isSharedVision | token="${token.name}" permission=${p} disposition=${d} overrideConfig=${JSON.stringify(overrideCfg)}`);
             sharedVision = getOverride("vision", token);
         }
         return sharedVision;
